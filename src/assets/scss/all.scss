@@ -1,0 +1,39 @@
+@import './reset';
+@import './base';
+
+// components
+@import './components/form';
+
+.logoImg {
+	margin-bottom: 16px;
+}
+
+// TODO 在 todo 頁會超出一頁畫面
+.vhContainer {
+	height: 100vh;
+}
+
+.bg-yellow {
+	background-color: #ffd370;
+}
+
+.bg-half {
+	background-image: linear-gradient(175deg, #ffd370 60%, #fff 40%);
+}
+
+.side {
+	width: 386px;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+	@media (max-width: 576px) {
+		width: 100%;
+	}
+}
+
+@media (max-width: 576px) {
+	.d-m-n {
+		display: none;
+	}
+}

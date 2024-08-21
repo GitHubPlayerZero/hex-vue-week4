@@ -1,0 +1,81 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: 'Noto Sans TC';
+	line-height: 1.44;
+}
+
+img {
+	width: 100%;
+	vertical-align: middle;
+}
+
+nav {
+	display: flex;
+	justify-content: space-between;
+	padding: 24px 32px 0 32px;
+
+	@media (max-width: 576px) {
+		margin-bottom: 16px;
+	}
+
+	h1 a {
+		width: 243px;
+		height: 39px;
+		background: url(https://upload.cc/i1/2022/03/23/8vTzYG.png) no-repeat;
+		display: block;
+		text-indent: 101%;
+		overflow: hidden;
+		white-space: nowrap;
+	}
+
+	ul {
+		display: flex;
+		font-size: 1rem;
+
+		@media (max-width: 576px) {
+			li {
+				margin-top: 11px;
+			}
+		}
+
+		a {
+			text-decoration: none;
+			color: #333333;
+			margin-left: 24px;
+
+			@media (max-width: 576px) {
+				margin-left: 0;
+			}
+
+			&:hover {
+				color: #d87355;
+			}
+
+			span {
+				font-weight: bold;
+			}
+		}
+
+		@media (max-width: 576px) {
+			.todo_sm {
+				display: none;
+			}
+		}
+	}
+}
+
+.conatiner {
+	margin: 0 auto;
+	padding: 87px 32px;
+}
+
+@media (max-width: 576px) {
+	.conatiner {
+		padding: 18px 32px;
+	}
+}
