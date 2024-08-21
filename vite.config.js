@@ -11,10 +11,6 @@ export default defineConfig({
 	css: {
 		devSourcemap: true,
 	},
-	server: {
-		// 啟動 server 時預設自動開啟的頁面
-		open: './index.html',
-	},
 	resolve: {
 		alias: {
 			'@': fileURLToPath(new URL('./src', import.meta.url)),
