@@ -1,3 +1,8 @@
+// Font Awesome
+$fa-font-path: '/node_modules/@fortawesome/fontawesome-free/webfonts';
+@import '@fortawesome/fontawesome-free/scss/fontawesome';
+@import '@fortawesome/fontawesome-free/scss/solid';
+
 @import './reset';
 @import './base';
 @import './form';
@@ -6,17 +11,17 @@
 	margin-bottom: 16px;
 }
 
-// TODO 在 todo 頁會超出一頁畫面
-.vhContainer {
-	height: 100vh;
-}
-
 .bg-yellow {
 	background-color: #ffd370;
 }
 
 .bg-half {
 	background-image: linear-gradient(175deg, #ffd370 60%, #fff 40%);
+
+	@media (max-width: 576px) {
+		background-image: none;
+		background-color: #ffd370;
+	}
 }
 
 .side {
@@ -34,4 +39,19 @@
 	.d-m-n {
 		display: none;
 	}
+}
+
+.text-bold {
+	font-weight: bold;
+}
+
+.h-100 {
+	height: 100dvh;
+}
+
+.d-flex {
+	display: flex;
+}
+.flex-column {
+	flex-direction: column;
 }

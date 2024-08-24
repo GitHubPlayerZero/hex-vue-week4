@@ -3,23 +3,30 @@ import { RouterLink } from 'vue-router';
 </script>
 
 <template>
-	<div id="todoListPage" class="bg-half">
+	<div id="todoListPage" class="bg-half h-100">
 		<nav>
-			<h1><a href="#">ONLINE TODO LIST</a></h1>
+			<h1>
+				<router-link to="/">
+					<img
+						src="https://raw.githubusercontent.com/hexschool/2022-web-layout-training/main/todolist/logo.png"
+						alt="Online todo list"
+					/>
+				</router-link>
+			</h1>
 			<ul>
-				<li class="todo_sm">王小明的代辦</li>
+				<li class="todo_sm text-bold">王小明的代辦</li>
 				<li>
 					<RouterLink to="/">登出</RouterLink>
 				</li>
 			</ul>
 		</nav>
-		<div class="conatiner todoListPage vhContainer">
+		
+		<div class="conatiner todoListPage">
 			<div class="todoList_Content">
 				<div class="inputBox">
 					<input type="text" placeholder="請輸入待辦事項" />
-					<a href="#">
-						<!-- TODO https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css -->
-						<i class="fa fa-plus"></i>
+					<a href="javascript:void(0)" class="inputBoxAdd">
+						<i class="fa-solid fa-plus"></i>
 					</a>
 				</div>
 				<div class="todoList_list">
@@ -36,7 +43,7 @@ import { RouterLink } from 'vue-router';
 									<span>把冰箱發霉的檸檬拿去丟</span>
 								</label>
 								<a href="#">
-									<i class="fa fa-times"></i>
+									<i class="fa-solid fa-times"></i>
 								</a>
 							</li>
 							<li>
@@ -45,7 +52,7 @@ import { RouterLink } from 'vue-router';
 									<span>打電話叫媽媽匯款給我</span>
 								</label>
 								<a href="#">
-									<i class="fa fa-times"></i>
+									<i class="fa-solid fa-times"></i>
 								</a>
 							</li>
 							<li>
@@ -54,7 +61,7 @@ import { RouterLink } from 'vue-router';
 									<span>整理電腦資料夾</span>
 								</label>
 								<a href="#">
-									<i class="fa fa-times"></i>
+									<i class="fa-solid fa-times"></i>
 								</a>
 							</li>
 							<li>
@@ -63,7 +70,7 @@ import { RouterLink } from 'vue-router';
 									<span>繳電費水費瓦斯費</span>
 								</label>
 								<a href="#">
-									<i class="fa fa-times"></i>
+									<i class="fa-solid fa-times"></i>
 								</a>
 							</li>
 							<li>
@@ -72,7 +79,7 @@ import { RouterLink } from 'vue-router';
 									<span>約vicky禮拜三泡溫泉</span>
 								</label>
 								<a href="#">
-									<i class="fa fa-times"></i>
+									<i class="fa-solid fa-times"></i>
 								</a>
 							</li>
 							<li>
@@ -81,7 +88,7 @@ import { RouterLink } from 'vue-router';
 									<span>約ada禮拜四吃晚餐</span>
 								</label>
 								<a href="#">
-									<i class="fa fa-times"></i>
+									<i class="fa-solid fa-times"></i>
 								</a>
 							</li>
 						</ul>
@@ -119,6 +126,12 @@ import { RouterLink } from 'vue-router';
 	position: relative;
 	margin-bottom: 16px;
 	box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.15);
+
+	.inputBoxAdd {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
 
 	input {
 		background: #fff;
@@ -244,6 +257,52 @@ import { RouterLink } from 'vue-router';
 			color: #9f9a91;
 			font-size: 0.875rem;
 			text-decoration: none;
+		}
+	}
+}
+
+nav {
+	display: flex;
+	justify-content: space-between;
+	padding: 24px 32px 0 32px;
+
+	@media (max-width: 576px) {
+		margin-bottom: 16px;
+	}
+
+	h1 {
+		height: 39px;
+		width: 243px;
+	}
+
+	ul {
+		display: flex;
+		font-size: 1rem;
+
+		@media (max-width: 576px) {
+			li {
+				margin-top: 11px;
+			}
+		}
+
+		a {
+			text-decoration: none;
+			color: #333333;
+			margin-left: 24px;
+
+			@media (max-width: 576px) {
+				margin-left: 0;
+			}
+
+			&:hover {
+				color: #d87355;
+			}
+		}
+
+		@media (max-width: 576px) {
+			.todo_sm {
+				display: none;
+			}
 		}
 	}
 }

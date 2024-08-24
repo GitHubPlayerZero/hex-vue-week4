@@ -3,14 +3,14 @@ import { RouterLink } from 'vue-router';
 </script>
 
 <template>
-	<div id="registerPage" class="bg-yellow">
-		<div class="conatiner registerPage vhContainer">
+	<div class="bg-yellow h-100 d-flex">
+		<div class="conatiner registerPage">
 			<div class="side">
 				<RouterLink to="/">
 					<img
 						class="logoImg"
 						src="https://raw.githubusercontent.com/hexschool/2022-web-layout-training/main/todolist/logo.png"
-						alt=""
+						alt="Online todo list"
 					/>
 				</RouterLink>
 				<img
