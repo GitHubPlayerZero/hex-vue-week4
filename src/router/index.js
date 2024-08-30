@@ -1,23 +1,58 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import LoginView from '@/views/LoginView.vue';
+// import AuthView from '@/views/AuthView.vue';
+import TodoView from '../views/TodoView.vue';
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
 	routes: [
 		{
 			path: '/',
-			name: 'login',
-			component: LoginView,
+			name: 'index',
+			component: TodoView,
+			children: [
+				{
+					path: '',
+					name: 'tododefault',
+					// component: () => import('@/components/Todo.vue'),
+					component: () => import('@/components/LoadingPage.vue'),
+				},
+				{
+					path: 'todo',
+					name: 'todo',
+					component: () => import('@/components/Todo.vue'),
+				},
+			],
+		},
+		// TODO TEST
+		{
+			path: '/todobak',
+			component: () => import('@/views/TodoViewBak.vue'),
 		},
 		{
-			path: '/register',
-			name: 'register',
-			component: () => import('../views/RegisterView.vue'),
+			path: '/auth',
+			name: 'auth',
+			component: () => import('../views/AuthView.vue'),
+			children: [
+				{
+					path: '',
+					name: 'authdefault',
+					component: () => import('../components/Login.vue'),
+				},
+				{
+					path: 'login',
+					name: 'login',
+					component: () => import('../components/Login.vue'),
+				},
+				{
+					path: 'register',
+					name: 'register',
+					component: () => import('../components/Register.vue'),
+				},
+			]
 		},
 		{
-			path: '/todo',
-			name: 'todo',
-			component: () => import('../views/TodoView.vue'),
+			path: '/test',
+			component: () => import('@/views/Test.vue'),
 		},
 	],
 });
