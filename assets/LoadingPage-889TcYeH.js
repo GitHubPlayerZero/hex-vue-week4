@@ -1,1 +1,0 @@
-import{_ as o,c,o as s,p as t,a,b as _}from"./index-5eGajqDw.js";const n={},d=e=>(t("data-v-6b319f82"),e=e(),a(),e),p={class:"container"},r=d(()=>_("p",null,"加載中...",-1)),i=[r];function f(e,l){return s(),c("div",p,i)}const u=o(n,[["render",f],["__scopeId","data-v-6b319f82"]]);export{u as default};
