@@ -1,94 +1,232 @@
 <script setup>
-import { computed, ref } from 'vue';
 
-// TODO TEST
-const todoList = ref([
-	{
-		id: 1,
-		task: '把冰箱發霉的檸檬拿去丟',
-		status: true,
-	},
-	{
-		id: 2,
-		task: '打電話叫媽媽匯款給我',
-		status: false,
-	},
-	{
-		id: 3,
-		task: '整理電腦資料夾',
-		status: false,
-	},
-	{
-		id: 4,
-		task: '繳電費水費瓦斯費',
-		status: true,
-	},
-	{
-		id: 5,
-		task: '約 vicky 禮拜三泡溫泉',
-		status: false,
-	},
-	{
-		id: 6,
-		task: '約 ada 禮拜四吃晚餐',
-		status: false,
-	},
-]);
+import { computed, onBeforeMount, onBeforeUpdate, onMounted, onUpdated, ref, watchEffect } from 'vue';
+import { api, loginToken } from '@/assets/js';
 
-// TODO 改成 watch
-// 完成項目
-const completeTask = computed(() => {
-	return todoList.value.filter((elem) => elem.status);
+const token = loginToken.get();
+
+// 資料 - 新增待辦事項
+const newTodo = ref('');
+const refNewTodo = ref(null);
+
+// 資料 - 待辦事項清單
+const todoList = ref([]);
+
+// 資料是否已準備好?
+// 用來控制畫面的穩定呈現，避免畫面在有無資料之間閃爍
+const isReady = ref(false);
+
+
+// 取得待辦事項
+async function getTodoList()
+{
+	try {
+		const res = await api.getTodos(token);
+		todoList.value = res.data.data;
+		isReady.value = true;
+	}
+	catch (error) {
+		console.error('[getTodoList] error ==>', error);
+		alert(api.parseError(error));
+	}
+}
+getTodoList();
+
+
+// 新增待辦事項
+async function addTodo()
+{
+	const content = newTodo.value;
+	
+	if (!content) {
+		alert("請先輸入待辦事項！");
+		refNewTodo.value.focus();
+		return;
+	}
+	
+	const data = {
+		content
+	}
+	
+	try {
+		await api.postTodos(token, data);
+		newTodo.value = '';
+		
+		// 重整資料
+		await getTodoList();
+	}
+	catch (error) {
+		console.error(`[addTodo] error ==>`, error);
+		alert(api.parseError);
+	}
+}
+
+
+// 刪除待辦事項
+async function deleteTodo(id)
+{
+	try {
+		await api.deleteTodos(token, id);
+		
+		// 重整資料
+		await getTodoList();
+	}
+	catch (error) {
+		console.error('[deleteTodo] error ==>', error);
+		alert(api.parseError);
+	}
+}
+
+
+// 更新待辦事項狀態
+async function changeTodoStatus(id)
+{
+	try {
+		await api.patchTodosToggle(token, id);
+		
+		// 重整資料
+		await getTodoList();
+	}
+	catch (error) {
+		console.error('[changeTodoStatus] error ==>', error);
+		alert(api.parseError);
+	}
+}
+
+
+// 完成 / 未完成 數量
+const completeNum = ref(0);
+const uncompletedNum = ref(0);
+
+watchEffect(() => {
+	completeNum.value = 0;
+	uncompletedNum.value = 0;
+	
+	todoList.value.forEach((elem) => {
+		if (elem.status) {
+			completeNum.value ++;
+		} else {
+			uncompletedNum.value ++;
+		}
+	})
 });
-// 未完成項目
-const uncompletedTask = computed(() => {
-	return todoList.value.filter((elem) => !elem.status);
+
+
+/**
+ * 頁籤狀態
+ * 全部 - undefined
+ * 待完成 - false
+ * 已完成 - true
+ */
+let tabStatus = ref(undefined);
+
+// 元素 - 頁籤們
+let elemTabs = [];
+onUpdated(() => {
+	elemTabs = document.querySelectorAll(".tab-link");
 });
+
+// 切換頁籤
+function switchTab(event, status)
+{
+	tabStatus.value = status;
+	
+	// set active style
+	elemTabs.forEach(elem => {
+		elem.classList.remove("active");
+	});
+	event.target.classList.add("active");
+}
+
 </script>
+
 
 <template>
 	<div class="container todoListPage">
-		<div class="todoList_Content">
+		<div class="todoList_Content" v-if="isReady">
+			
+			<!-- 新增待辦事項 -->
 			<div class="inputBox">
-				<input type="text" placeholder="請輸入待辦事項" />
-				<a href="javascript:void(0)" class="inputBoxAdd">
+				<input 
+					v-model.trim="newTodo" ref="refNewTodo" @keyup.enter="addTodo"
+					type="text" placeholder="請輸入待辦事項" 
+				/>
+				<a href="#" class="inputBoxAdd" @click.prevent="addTodo">
 					<i class="fa-solid fa-plus"></i>
 				</a>
 			</div>
-			<div class="todoList_list">
+			
+			
+			<!-- 待辦事項列表 -->
+			<div class="todoList_list" v-if="todoList.length > 0">
+				
+				<!-- 頁籤 -->
 				<ul class="todoList_tab">
-					<li><a href="#" class="active">全部</a></li>
-					<li><a href="#">待完成</a></li>
-					<li><a href="#">已完成</a></li>
+					<li><a href="#" class="tab-link active" @click.prevent="switchTab($event)">全部</a></li>
+					<li><a href="#" class="tab-link" @click.prevent="switchTab($event, false)">待完成</a></li>
+					<li><a href="#" class="tab-link" @click.prevent="switchTab($event, true)">已完成</a></li>
 				</ul>
+				
+				<!-- 列表 -->
 				<div class="todoList_items">
 					<ul class="todoList_item">
-						<li v-for="todo in todoList" :key="todo.id">
-							<label class="todoList_label">
-								<input
-									class="todoList_input"
-									type="checkbox"
-									value="true"
-									v-model="todo.status"
-								/>
-								<span>{{ todo.task }}</span>
-							</label>
-							<a href="#">
-								<i class="fa-solid fa-times"></i>
-							</a>
-						</li>
+						
+						<template v-for="todo in todoList" :key="todo.id">
+							<li v-if="tabStatus === undefined || tabStatus === todo.status">
+								<label class="todoList_label">
+									<input 
+										v-model="todo.status"
+										@click="changeTodoStatus(todo.id)"
+										class="todoList_input"
+										type="checkbox" value="true"
+									/>
+									<span>{{ todo.content }}</span>
+								</label>
+								
+								<!-- 刪除 -->
+								<a href="#" @click.prevent="deleteTodo(todo.id)">
+									<i class="fa-solid fa-times"></i>
+								</a>
+							</li>
+						</template>
+						
 					</ul>
+					
 					<div class="todoList_statistics">
-						<p>{{ completeTask.length }} 個已完成項目</p>
-						<p>{{ uncompletedTask.length }} 個未完成項目</p>
+						<p class="text-bold">{{ uncompletedNum }} 個待完成項目</p>
+						<p>{{ completeNum }} 個已完成項目</p>
 					</div>
 				</div>
 			</div>
+			
+			
+			<!-- 無待辦事項畫面 -->
+			<div class="empty" v-else>
+				<p class="empty-desc">目前尚無待辦事項</p>
+				<img src="../assets/images/empty.png" alt="無待辦事項" class="empty-img">
+			</div>
+			
 		</div>
 	</div>
 </template>
 
+
 <style lang="scss" scoped>
+.empty {
+	margin-top: 60px;
+	text-align: center;
+	
+	&-desc {
+		color: #333333;
+		text-align: center;
+		margin-bottom: 16px;
+	}
+	
+	&-img {
+		width: 350px;
+	}
+}
+
 .todoListPage {
 	padding: 16px 32px;
 
@@ -160,7 +298,7 @@ const uncompletedTask = computed(() => {
 			width: 100%;
 		}
 
-		a {
+		.tab-link {
 			display: block;
 			color: #9f9a91;
 			text-decoration: none;

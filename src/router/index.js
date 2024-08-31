@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-// import AuthView from '@/views/AuthView.vue';
-import TodoView from '../views/TodoView.vue';
+import IndexView from '../views/IndexView.vue';
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -8,25 +7,14 @@ const router = createRouter({
 		{
 			path: '/',
 			name: 'index',
-			component: TodoView,
+			component: IndexView,
 			children: [
-				{
-					path: '',
-					name: 'tododefault',
-					// component: () => import('@/components/Todo.vue'),
-					component: () => import('@/components/LoadingPage.vue'),
-				},
 				{
 					path: 'todo',
 					name: 'todo',
 					component: () => import('@/components/Todo.vue'),
 				},
 			],
-		},
-		// TODO TEST
-		{
-			path: '/todobak',
-			component: () => import('@/views/TodoViewBak.vue'),
 		},
 		{
 			path: '/auth',
@@ -49,10 +37,6 @@ const router = createRouter({
 					component: () => import('../components/Register.vue'),
 				},
 			]
-		},
-		{
-			path: '/test',
-			component: () => import('@/views/Test.vue'),
 		},
 	],
 });
