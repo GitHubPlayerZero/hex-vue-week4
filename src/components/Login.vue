@@ -6,9 +6,13 @@ import { ref } from 'vue';
 import { api, auth } from '@/assets/js';
 
 // 資料 - 登入
+// const loginData = ref({
+// 	email: 'aaa1@gmail.com',
+// 	password: '123456',
+// });
 const loginData = ref({
-	email: 'aaa1@gmail.com',
-	password: '123456',
+	email: '',
+	password: '',
 });
 
 

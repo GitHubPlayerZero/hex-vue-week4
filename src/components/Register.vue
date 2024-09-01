@@ -6,14 +6,20 @@ import { ref } from 'vue';
 import { api, auth } from '@/assets/js';
 
 // 資料 - 再次輸入密碼
-const repeatPwd = ref('123456');
+// const repeatPwd = ref('123456');
+const repeatPwd = ref('');
 const refRepeatPwd = ref(null);
 
 // 資料 - 註冊
+// const registerData = ref({
+// 	email: 'aaa1@gmail.com',
+// 	nickname: 'ababab',
+// 	password: '123456',
+// });
 const registerData = ref({
-	email: 'aaa1@gmail.com',
-	nickname: 'ababab',
-	password: '123456',
+	email: '',
+	nickname: '',
+	password: '',
 });
 
 
