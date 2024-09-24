@@ -38,6 +38,12 @@ const router = createRouter({
 				},
 			]
 		},
+		// 404 導頁
+		{
+			path: '/:pathMatch(.*)*',
+			name: 'notFound',
+			redirect: '/auth/login',
+		}
 	],
 });
 
