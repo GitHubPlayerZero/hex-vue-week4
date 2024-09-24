@@ -1,9 +1,16 @@
 <script setup>
 
-import { computed, onBeforeMount, onBeforeUpdate, onMounted, onUpdated, ref, watchEffect } from 'vue';
-import { api, loginToken } from '@/assets/js';
+import { nextTick, ref, watch } from 'vue';
+import { api, loginToken, useMyLoading, useMySwal } from '@/assets/js';
+
 
 const token = loginToken.get();
+
+// 準備 Loading 物件
+const myLoading = useMyLoading();
+
+// 準備訊息物件
+const mySwal = useMySwal();
 
 // 資料 - 新增待辦事項
 const newTodo = ref('');
@@ -12,14 +19,49 @@ const refNewTodo = ref(null);
 // 資料 - 待辦事項清單
 const todoList = ref([]);
 
+watch(
+	todoList, 
+	() => {
+		completeNum.value = 0;
+		uncompletedNum.value = 0;
+		
+		todoList.value.forEach((elem) => {
+			if (elem.status) {
+				completeNum.value ++;
+			} else {
+				uncompletedNum.value ++;
+			}
+		});
+		
+		// 渲染完成才對 DOM 元操作
+		nextTick(() => {
+			elemTabs = document.querySelectorAll(".tab-link");
+		});
+	}
+);
+
+
 // 資料是否已準備好?
 // 用來控制畫面的穩定呈現，避免畫面在有無資料之間閃爍
 const isReady = ref(false);
+
+watch(
+	isReady, 
+	() => {
+		// 渲染完成才對 DOM 元操作
+		nextTick(() => {
+			refNewTodo.value.focus();
+		});
+	},
+	{ once: true }
+);
 
 
 // 取得待辦事項
 async function getTodoList()
 {
+	const loader = myLoading.open();
+	
 	try {
 		const res = await api.getTodos(token);
 		todoList.value = res.data.data;
@@ -27,27 +69,32 @@ async function getTodoList()
 	}
 	catch (error) {
 		console.error('[getTodoList] error ==>', error);
-		alert(api.parseError(error));
+		await mySwal.alertError(api.parseError(error));
 	}
+	
+	loader.close();
 }
-getTodoList();
 
 
 // 新增待辦事項
 async function addTodo()
 {
+	const loader = myLoading.open();
 	const content = newTodo.value;
 	
+	// 檢核
 	if (!content) {
-		alert("請先輸入待辦事項！");
+		await mySwal.alertError("請先輸入待辦事項！");
 		refNewTodo.value.focus();
+		loader.close();
 		return;
 	}
 	
 	const data = {
 		content
-	}
+	};
 	
+	// 新增
 	try {
 		await api.postTodos(token, data);
 		newTodo.value = '';
@@ -57,14 +104,19 @@ async function addTodo()
 	}
 	catch (error) {
 		console.error(`[addTodo] error ==>`, error);
-		alert(api.parseError);
+		await mySwal.alertError(api.parseError(error));
 	}
+	
+	refNewTodo.value.focus();
+	loader.close();
 }
 
 
 // 刪除待辦事項
 async function deleteTodo(id)
 {
+	const loader = myLoading.open();
+	
 	try {
 		await api.deleteTodos(token, id);
 		
@@ -73,14 +125,22 @@ async function deleteTodo(id)
 	}
 	catch (error) {
 		console.error('[deleteTodo] error ==>', error);
-		alert(api.parseError);
+		await mySwal.alertError(api.parseError(error));
 	}
+	
+	if (todoList.value.length <= 0) {
+		refNewTodo.value.focus();
+	}
+	
+	loader.close();
 }
 
 
 // 更新待辦事項狀態
 async function changeTodoStatus(id)
 {
+	const loader = myLoading.open();
+	
 	try {
 		await api.patchTodosToggle(token, id);
 		
@@ -89,28 +149,16 @@ async function changeTodoStatus(id)
 	}
 	catch (error) {
 		console.error('[changeTodoStatus] error ==>', error);
-		alert(api.parseError);
+		await mySwal.alertError(api.parseError(error));
 	}
+	
+	loader.close();
 }
 
 
 // 完成 / 未完成 數量
 const completeNum = ref(0);
 const uncompletedNum = ref(0);
-
-watchEffect(() => {
-	completeNum.value = 0;
-	uncompletedNum.value = 0;
-	
-	todoList.value.forEach((elem) => {
-		if (elem.status) {
-			completeNum.value ++;
-		} else {
-			uncompletedNum.value ++;
-		}
-	})
-});
-
 
 /**
  * 頁籤狀態
@@ -122,9 +170,6 @@ let tabStatus = ref(undefined);
 
 // 元素 - 頁籤們
 let elemTabs = [];
-onUpdated(() => {
-	elemTabs = document.querySelectorAll(".tab-link");
-});
 
 // 切換頁籤
 function switchTab(event, status)
@@ -138,23 +183,28 @@ function switchTab(event, status)
 	event.target.classList.add("active");
 }
 
+
+// initial
+getTodoList();
+
 </script>
 
 
 <template>
 	<div class="container todoListPage">
-		<div class="todoList_Content" v-if="isReady">
+		
+		<div class="todoList_Content" v-show="isReady">
 			
 			<!-- 新增待辦事項 -->
-			<div class="inputBox">
+			<form class="inputBox" @submit.prevent="addTodo">
 				<input 
-					v-model.trim="newTodo" ref="refNewTodo" @keyup.enter="addTodo"
-					type="text" placeholder="請輸入待辦事項" 
+					v-model.trim="newTodo" ref="refNewTodo"
+					type="text" placeholder="請輸入待辦事項"
 				/>
 				<a href="#" class="inputBoxAdd" @click.prevent="addTodo">
 					<i class="fa-solid fa-plus"></i>
 				</a>
-			</div>
+			</form>
 			
 			
 			<!-- 待辦事項列表 -->

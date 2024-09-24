@@ -3,18 +3,26 @@
 
 import { RouterLink } from 'vue-router';
 import { ref } from 'vue';
-import { api, auth } from '@/assets/js';
+import { api, auth, useMyLoading, useMySwal } from '@/assets/js';
+import Swal from 'sweetalert2';
+
+
+// 準備 Loading 物件
+const myLoading = useMyLoading();
+
+// 準備訊息物件
+const mySwal = useMySwal();
 
 // 資料 - 再次輸入密碼
-// const repeatPwd = ref('123456');
+// const repeatPwd = ref('sdf4kslk3');
 const repeatPwd = ref('');
 const refRepeatPwd = ref(null);
 
 // 資料 - 註冊
 // const registerData = ref({
-// 	email: 'aaa1@gmail.com',
+// 	email: 'aaa3@gmail.com',
 // 	nickname: 'ababab',
-// 	password: '123456',
+// 	password: 'sdf4kslk3',
 // });
 const registerData = ref({
 	email: '',
@@ -24,11 +32,15 @@ const registerData = ref({
 
 
 // 檢核資料
-function checkData (dataValue)
+async function checkData (dataValue)
 {
+	// 密碼不一致
 	if (dataValue.password !== repeatPwd.value) {
-		alert('密碼不一致，請重新輸入！');
-		refRepeatPwd.value.focus();
+		await mySwal.alertError('密碼不一致，請重新輸入！', {
+			didDestroy: () => {
+				refRepeatPwd.value.focus();
+			}
+		});
 		return false;
 	}
 
@@ -37,29 +49,75 @@ function checkData (dataValue)
 
 
 // 註冊
-function register ()
+async function register ()
 {
+	const loader = myLoading.open();
+	
 	const { value: dataValue } = registerData;
 
 	// 檢核資料，若有錯誤則停止執行
-	if (!checkData(dataValue)) {
+	if (! await checkData(dataValue)) {
+		loader.close();
 		return;
 	}
-
+	
+	
 	// 執行註冊
-	api.postSignUp(dataValue)
-		.then((res) => {
-			alert('註冊成功，將自動為您轉換到待辦事項～');
-			return api.postSignIn(dataValue); // 執行登入
-		})
-		.then((res) => {
-			auth.login(res.data.token);
-		})
-		.catch((error) => {
-			console.error(`[register] error ==>`, error);
-			alert(api.parseError(error));
-		})
-		.finally(() => { });
+	try {
+		await api.postSignUp(dataValue);
+	}
+	catch (error) {
+		console.error(`[register] error ==>`, error);
+		await mySwal.alertError(api.parseError(error));
+		loader.close();
+		return;
+	}
+	
+	
+	/* 自動登入 */
+	let timerInterval;
+	
+	Swal.fire({
+		allowEscapeKey: false,
+		allowOutsideClick: false,
+		confirmButtonText: '立即登入',
+		showDenyButton: true,
+		denyButtonText: "離開",
+		position: 'top',
+		icon: 'success',
+		title: '註冊成功！',
+		html: '<span id="countdown">10</span> 秒後將為您自動登入，若不想登入請點擊「離開」。',
+		timer: 10000,
+		timerProgressBar:true,
+		
+		didOpen (popup) {
+			// 倒數計時
+			const elemCountdown = popup.querySelector("#countdown");
+			timerInterval = setInterval(() => {
+				elemCountdown.textContent = `${Math.ceil(Swal.getTimerLeft() / 1000)}`;
+			}, 1000);
+		},
+		
+		willClose (popup) {
+			clearInterval(timerInterval);
+		},
+	})
+		.then(async (result) => {
+			
+			if (!result.isDenied) {
+				// 執行登入
+				try {
+					const res = await api.postSignIn(dataValue);
+					auth.login(res.data.token);
+				}
+				catch (error) {
+					console.error(`[login] error ==>`, error);
+					await mySwal.alertError(api.parseError(error));
+				}
+			}
+			
+			loader.close();
+		});
 }
 
 </script>

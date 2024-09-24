@@ -111,9 +111,9 @@ const patchTodosToggle = (token, id) =>
 	
 /**
  * 解析 API 傳回的 error。
- * @param {Object} error
- * 		@param {Object} [error.response] - error.response.data.message
- * 		@param {String} error.message
+ * @param {Object} errorModel
+ * 		@param {Object} [errorModel.response] - error.response.data.message
+ * 		@param {String} errorModel.message
  * @returns {(Array|String)} - 若 error.response.data.message 存在，會回傳此，有可能為訊息陣列。  
  * 								否則回傳 error.message，此為字串。
  */

@@ -3,12 +3,19 @@
 
 import { RouterLink } from 'vue-router';
 import { ref } from 'vue';
-import { api, auth } from '@/assets/js';
+import { api, auth, useMyLoading, useMySwal } from '@/assets/js';
+
+
+// 準備 Loading 物件
+const myLoading = useMyLoading();
+
+// 準備訊息物件
+const mySwal = useMySwal();
 
 // 資料 - 登入
 // const loginData = ref({
-// 	email: 'aaa1@gmail.com',
-// 	password: '123456',
+// 	email: 'aaa3@gmail.com',
+// 	password: 'sdf4kslk3',
 // });
 const loginData = ref({
 	email: '',
@@ -19,13 +26,18 @@ const loginData = ref({
 // 登入
 function signin()
 {
+	const loader = myLoading.open();
+	
 	api.postSignIn(loginData.value)
 		.then((res) => {
 			auth.login(res.data.token);
 		})
-		.catch((error) => {
+		.catch(async (error) => {
 			console.error(`[login] error ==>`, error);
-			alert(api.parseError(error));
+			await mySwal.alertError(api.parseError(error));
+		})
+		.finally(() => {
+			loader.close();
 		});
 }
 

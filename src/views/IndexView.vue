@@ -1,12 +1,18 @@
 <script setup>
 
 import { ref } from 'vue';
-import { RouterLink, RouterView, useRouter } from 'vue-router';
-import { api, loginToken } from '@/assets/js';
+import { RouterView, useRouter } from 'vue-router';
+import { api, loginToken, useMyLoading, useMySwal } from '@/assets/js';
+
 
 const router = useRouter();
-
 const token = loginToken.get();
+
+// 準備 Loading 物件
+const myLoading = useMyLoading();
+
+// 準備訊息物件
+const mySwal = useMySwal();
 
 // 資料 - 權限
 const authData = ref({
@@ -35,22 +41,24 @@ async function checkAuth ()
 		router.push({ name: 'login' });
 	}
 }
-checkAuth();
 
 
 // 登出
 function logout ()
 {
-	authData.value.status = false;
+	const loader = myLoading.open();
 	
 	api.postSignOut(token)
 		.then ((res) => {
 			loginToken.remove();
 			router.push({ name: 'login' });
 		})
-		.catch ((error) => {
+		.catch (async (error) => {
 			console.error(`[logout] error ==>`, error);
-			alert(api.parseError(error));
+			await mySwal.alertError(api.parseError(error));
+		})
+		.finally(() => {
+			loader.close();
 		})
 }
 
@@ -60,6 +68,10 @@ function reload () {
 	authData.value.status = false;
 	checkAuth();
 }
+
+
+// initial
+checkAuth();
 
 </script>
 
@@ -76,7 +88,7 @@ function reload () {
 					</a>
 				</h1>
 
-				<ul v-if="authData.status">
+				<ul>
 					<li class="todo_sm text-bold">{{ authData.nickname }} 的待辦</li>
 					<li><a href="#" @click.prevent="logout">登出</a></li>
 				</ul>
