@@ -33,6 +33,11 @@ watch(
 			}
 		});
 		
+		// 若沒有資料則還原頁籤初始狀態
+		if (todoList.value.length <= 0) {
+			tabStatus.value = undefined;
+		}
+		
 		// 渲染完成才對 DOM 元操作
 		nextTick(() => {
 			elemTabs = document.querySelectorAll(".tab-link");
